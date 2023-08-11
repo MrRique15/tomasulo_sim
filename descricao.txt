@@ -1,0 +1,18 @@
+- Não precisa de FLOAT op
+- Memória de dados != Memória de instruções
+	- instrução cabe na memória de instruções, cada posição da memória armazena um único elemento
+- Memória de dados >= 512 posições
+- Programa em exec pode ser armazenado inteiro na mem de instruções
+- 32 regs de uso geral (r0 ... r31)
+	- r0 = 0 (sempre) - usado para fazer instruções do tipo *i* -> movi r3,5 = addi r3,r0,5
+- UNIDADES FUNCIONAIS
+	- 3 unidades para (LOAD & STORE) - calculo de endereço
+	- 3 unidades para (SOMA & SUBTRACAO) - inteiros 
+		- operações lógicas e desvios feitas nas mesmas unidades
+	- 3 unidades para (MULT & DIV) - inteiros
+- ESTAÇÕES DE RESERVA
+	- 16 (SOMA & SUB)
+	- 16 (MULT & DIV)
+	- 16 (LOAD & STORE)
+	
+- INSTRUÇÕES DE ENTRADA NA TABELA DO TRABALHO
