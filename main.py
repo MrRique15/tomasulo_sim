@@ -16,6 +16,11 @@ def tomasulo() -> None:
                 utils.Instruction(instruction=list_instruction)
             )                                    # formata e insere a instrução na memória de instruções
     
+    print("-----------------------------------------[ Instruction memory ]-----------------------------------------")
+    for item in instruction_memory.inst_mem:
+        print(item.__dict__)
+    print("--------------------------------------------------------------------------------------------------------")
+        
     main_processor.set_instruction_memory(instructions_memory=instruction_memory.inst_mem) # seta a memória de instruções no processador
     main_processor.start_processing() # inicia o processamento das instruções
 

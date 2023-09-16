@@ -8,12 +8,13 @@ class Reserv_Station():
         self.Qj = None
         self.Qk = None
         self.A = None
-        self.operation_clocks = 0
+        self.clock_cycles = 0
+        self.result = None
         
     def __str__(self):
-        return f"Name: {self.name} | Busy: {self.busy} | Operand: {self.operand} | Vj: {self.Vj} | Vk: {self.Vk} | Qj: {self.Qj} | Qk: {self.Qk} | A: {self.A} | Operation Clocks: {self.operation_clocks}"
+        return f"Name: {self.name} | Busy: {self.busy} | Operand: {self.operand} | Vj: {self.Vj} | Vk: {self.Vk} | Qj: {self.Qj} | Qk: {self.Qk} | A: {self.A}"
     
-    def popule_station(self, operand: str, Vj: int, Vk: int, Qj: str, Qk: str, A: int, operation_clocks: int):
+    def popule_station(self, operand: str, Vj: int, Vk: int, Qj: str, Qk: str, A: int, clock_cycles: int):
         self.busy = True
         self.operand = operand
         self.Vj = Vj
@@ -21,7 +22,8 @@ class Reserv_Station():
         self.Qj = Qj
         self.Qk = Qk
         self.A = A
-        self.operation_clocks = operation_clocks
+        self.clock_cycles = clock_cycles
+        self.result = None
         
     def clear_station(self):
         self.busy = False
@@ -31,97 +33,56 @@ class Reserv_Station():
         self.Qj = None
         self.Qk = None
         self.A = None
-        self.operation_clocks = 0
-        
-    def operate(self):
-        if self.busy and self.operation_clocks > 0:
-            self.operation_clocks -= 1
-            if self.operation_clocks == 0:
-                return "finished"
-            else:
-                return "still operating"
-        else:
-            return False
+        self.clock_cycles = 0
+        self.result = None
         
 class Functional_Unit():
     def __init__(self, name:str):
         self.name = name
         self.busy = False
         self.operand = None
-        self.Vj = None
-        self.Vk = None
-        self.Qj = None
-        self.Qk = None
-        self.A = None
         self.operation_clocks = 0
         self.reserv_station_name = None
         
     def __str__(self):
-        return f"Name: {self.name} | Busy: {self.busy} | Operand: {self.operand} | Vj: {self.Vj} | Vk: {self.Vk} | Qj: {self.Qj} | Qk: {self.Qk} | A: {self.A} | Operation Clocks: {self.operation_clocks}"
+        return f"Name: {self.name} | Busy: {self.busy} | Operand: {self.operand} | Operation Clocks: {self.operation_clocks}"
     
-    def popule_unit(self, operand: str, Vj: int, Vk: int, Qj: str, Qk: str, A: int, operation_clocks: int, reserv_station_name: str):
+    def popule_unit(self, operand: str, operation_clocks: int, reserv_station_name: str):
         self.busy = True
         self.operand = operand
-        self.Vj = Vj
-        self.Vk = Vk
-        self.Qj = Qj
-        self.Qk = Qk
-        self.A = A
         self.operation_clocks = operation_clocks
         self.reserv_station_name = reserv_station_name
         
     def clear_unit(self):
         self.busy = False
         self.operand = None
-        self.Vj = None
-        self.Vk = None
-        self.Qj = None
-        self.Qk = None
-        self.A = None
         self.operation_clocks = 0
         self.reserv_station_name = None
         
-    def operate(self):
+    def operate(self) -> str:
         if self.busy and self.operation_clocks > 0:
             self.operation_clocks -= 1
         
             if self.operation_clocks == 0:
-                # match self.operand:
-                #     case 'add':
-                #         return self.Vj + self.Vk
-                #     case 'sub':
-                #         return self.Vj - self.Vk
-                #     case 'mult':
-                #         return self.Vj * self.Vk
-                #     case 'div':
-                #         return self.Vj / self.Vk
-                #     case 'addi':
-                #         return self.Vj + self.Vk
-                #     case 'subi':
-                #         return self.Vj - self.Vk
-                #     case 'not':
-                #         return ~self.Vj
-                #     case 'lw':
-                #         return self.Vj + self.Vk
-                #     case 'sw':
-                #         return self.Vj + self.Vk
-                #     case 'movi':
-                #         return self.Vj + self.Vk
-                #     case 'mov':
-                #         return self.Vj + self.Vk
-                #     case 'blt':
-                #         return self.Vj + self.Vk
-                #     case 'bgt':
-                #         return self.Vj + self.Vk
-                #     case 'beq':
-                #         return self.Vj + self.Vk
-                #     case 'bne':
-                #         return self.Vj + self.Vk
-                #     case 'j':
-                #         return self.Vj + self.Vk
-                #     case _:
-                #         raise(f"invalid operation inserted {self.operand}")
-                return "finished"
+                return self.operand
             else:
                 return "still operating"
         
+class Registers():
+    def __init__(self, number:int, qi:int, value:int):
+        self.number = number
+        self.Qi = 0
+        self.value = 0
+        
+    def set_register_qi(self, qi: int):
+        self.Qi = qi
+        
+    def set_register_value(self, value: int):
+        self.value = value
+        
+    def clear_register(self):
+        self.Qi = 0
+        self.value = 0
+        
+    def __str__(self):
+        return f"R{self.number} --> Qi: {self.Qi} | Value: {self.value}"
