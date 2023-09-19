@@ -7,10 +7,12 @@ debug = False
 class Processor():
     def __init__(self):
         self.instructions_memory = []
+        self.out_put_path = ''
         self.dispatch_queue = [None for i in range(5)]
         self.data_memory = [0 for i in range(512)]
         self.registers = [Registers(number=i,qi=0,value=0) for i in range(32)]
         self.pc = 0
+        self.is_branching = False
         self.clock = 0
         self.clocks_to_finish = 0
         self.load_stations = [Reserv_Station(name=f"LOAD{i+1}") for i in range(16)]
@@ -23,15 +25,22 @@ class Processor():
     def set_instruction_memory(self, instructions_memory: list):
         self.instructions_memory = instructions_memory
         
-    def start_processing(self):
+    def start_processing(self, out_put_path: str) -> None:
         self.clocks_to_finish = len(self.instructions_memory)
-        
+        self.out_put_path = out_put_path
+               
         while(self.clocks_to_finish != 0):
             self.process_clock()
             self.clock += 1
-            print("=====================================================")
-            print(f"Clock: {self.clock}")
-            print("=====================================================")
+            
+            with open(self.out_put_path, 'a') as output_file:
+                output_file.write("----==========================================================================================================----\n")
+                output_file.write(f"----==============================================[ CLOCK: {self.clock:{3}} ]==============================================----\n")
+                output_file.write("----==========================================================================================================----\n")
+                
+            print("----==========================================================================================================----")
+            print(f"----==============================================[ CLOCK: {self.clock:{3}} ]==============================================----")
+            print("----==========================================================================================================----")
             self.print_reserv_stations_status()
             self.print_functional_units_status()
             self.print_registers_status()
@@ -41,9 +50,10 @@ class Processor():
             # print_memory = input("Print memory? (y/n): ")
             # if print_memory == 'y':
             #     self.print_memory_status()
-                
-            print("=====================================================")
-            print("=====================================================")
+            
+            with open(self.out_put_path, 'a') as output_file:
+                output_file.write("----==========================================================================================================----\n")
+            print("----==========================================================================================================----")
             
             next_clock = input("Next clock? (y/n): ")
             if next_clock == 'n':
@@ -60,7 +70,12 @@ class Processor():
         self.process_functional_units()   # processa as unidades funcionais
         self.process_reserv_stations()    # processa as estações de reserva
         self.dispatch_instruction()       # tenta despachar novas instruções se possível
-        self.populete_dispatch_queue()    # popula a fila de despacho
+        
+        # travando busca e despacho quando um branch está em andamento.
+        if not self.is_branching:
+            self.populete_dispatch_queue()    # popula a fila de despacho
+            
+        return None
         
     def process_functional_units(self) -> None:
         for load_unit in self.load_functional_units:
@@ -197,6 +212,9 @@ class Processor():
                 elif add_station.operand in ['blt', 'bgt', 'beq', 'bne']:
                     if add_station.result != None:
                         self.pc = add_station.result
+                        
+                    # com a escrita do branch, destrava busca e despacho de instruções
+                    self.is_branching = False
                 
                 add_station.clear_station()
             
@@ -366,7 +384,7 @@ class Processor():
                         Vk=self.registers[instruction.rt].value if self.registers[instruction.rt].Qi == 0 else None,
                         Qj=self.registers[instruction.rs].Qi if self.registers[instruction.rs].Qi != 0 else None,
                         Qk=self.registers[instruction.rt].Qi if self.registers[instruction.rt].Qi != 0 else None,
-                        A=self.instruction.imm,
+                        A=instruction.imm,
                         clock_cycles=instruction.cycles
                     )
                     return None
@@ -416,6 +434,11 @@ class Processor():
         for i in range(len(self.dispatch_queue)):
             if self.dispatch_queue[i] == None:
                 if self.pc < len(self.instructions_memory):
+                    
+                    # encontrada instrução de desvio, trava novas buscas até resolver
+                    if self.instructions_memory[self.pc].op in ['blt', 'bgt', 'beq', 'bne']:
+                        self.is_branching = True
+                        
                     self.dispatch_queue[i] = self.instructions_memory[self.pc]
                     self.pc += 1
                     return None
@@ -425,7 +448,7 @@ class Processor():
         return None
     
     def print_reserv_stations_status(self) -> None:
-        print("---------------------------------------------------------[ Reserv Stations Status ]---------------------------------------------------------")
+        print("---------------------------------------------------[ Reserv Stations Status ]---------------------------------------------------")
         print("=====================================================")
         print("LOAD Stations:")
         for load_station in self.load_stations:
@@ -439,11 +462,32 @@ class Processor():
         for mult_station in self.mult_stations:
             print(mult_station.__str__())
         print("=====================================================")
-        print("--------------------------------------------------------------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------------------------------------------------------")
+        
+        with open(self.out_put_path, 'a') as output_file:
+            output_file.write("---------------------------------------------------[ Reserv Stations Status ]---------------------------------------------------\n")
+            output_file.write("=====================================================\n")
+            output_file.write("LOAD Stations:\n")
+            for load_station in self.load_stations:
+                output_file.write(load_station.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("ADD Stations:\n")
+            for add_station in self.add_stations:
+                output_file.write(add_station.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("MULT Stations:\n")
+            for mult_station in self.mult_stations:
+                output_file.write(mult_station.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("--------------------------------------------------------------------------------------------------------------------------------\n")
+        
         return None
     
     def print_functional_units_status(self) -> None:
-        print("---------------------------------------------------------[ Functional Units Status ]--------------------------------------------------------")
+        print("---------------------------------------------------[ Functional Units Status ]--------------------------------------------------")
         print("=====================================================")
         print("LOAD Units:")
         for load_unit in self.load_functional_units:
@@ -457,25 +501,65 @@ class Processor():
         for mult_unit in self.mult_functional_units:
             print(mult_unit.__str__())
         print("=====================================================")
-        print("--------------------------------------------------------------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------------------------------------------------------")
+        
+        with open(self.out_put_path, 'a') as output_file:
+            output_file.write("---------------------------------------------------[ Functional Units Status ]---------------------------------------------------\n")
+            output_file.write("=====================================================\n")
+            output_file.write("LOAD Units:\n")
+            for load_unit in self.load_functional_units:
+                output_file.write(load_unit.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("ADD Units:\n")
+            for add_unit in self.add_functional_units:
+                output_file.write(add_unit.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("MULT Units:\n")
+            for mult_unit in self.mult_functional_units:
+                output_file.write(mult_unit.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("--------------------------------------------------------------------------------------------------------------------------------\n")
+        
+            
         return None
     
     def print_registers_status(self) -> None:
-        print("---------------------------------------------------------[ Registers Status ]---------------------------------------------------------------")
+        print("---------------------------------------------------[ Registers Status ]---------------------------------------------------------")
         print("=====================================================")
         for register in self.registers:
             print(register.__str__())
         print("=====================================================")
-        print("--------------------------------------------------------------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------------------------------------------------------")
+        
+        with open(self.out_put_path, 'a') as output_file:
+            output_file.write("---------------------------------------------------[ Registers Status ]---------------------------------------------------------\n")
+            output_file.write("=====================================================\n")
+            for register in self.registers:
+                output_file.write(register.__str__())
+                output_file.write('\n')
+            output_file.write("=====================================================\n")
+            output_file.write("--------------------------------------------------------------------------------------------------------------------------------\n")
         return None
     
     def print_memory_status(self) -> None:
-        print("---------------------------------------------------------[ Memory Status ]------------------------------------------------------------------")
+        print("---------------------------------------------------[ Memory Status ]------------------------------------------------------------")
         print("=====================================================")
         for i in range(len(self.data_memory)):
-            print(f"Memory position {i}: {self.data_memory[i]}")
+            print(f"Data Memory [{i:{3}}] = {self.data_memory[i]}")
         print("=====================================================")
-        print("--------------------------------------------------------------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------------------------------------------------------")
+        
+        with open(self.out_put_path, 'a') as output_file:
+            output_file.write("---------------------------------------------------[ Memory Status ]---------------------------------------------------------\n")
+            output_file.write("=====================================================\n")
+            for i in range(len(self.data_memory)):
+                output_file.write(f"Data Memory [{i:{3}}] = {self.data_memory[i]}\n")
+            output_file.write("=====================================================\n")
+            output_file.write("--------------------------------------------------------------------------------------------------------------------------------\n")
+        
         return None
     
     def verify_remaining_clocks(self):

@@ -12,7 +12,7 @@ class Reserv_Station():
         self.result = None
         
     def __str__(self):
-        return f"Name: {self.name} | Busy: {self.busy} | Operand: {self.operand} | Vj: {self.Vj} | Vk: {self.Vk} | Qj: {self.Qj} | Qk: {self.Qk} | A: {self.A}"
+        return f"Name: {self.name:{6}} | Busy: {self.busy} | Operand: {self.operand} | Vj: {self.Vj} | Vk: {self.Vk} | Qj: {self.Qj} | Qk: {self.Qk} | A: {self.A}"
     
     def popule_station(self, operand: str, Vj: int, Vk: int, Qj: str, Qk: str, A: int, clock_cycles: int):
         self.busy = True
@@ -45,7 +45,7 @@ class Functional_Unit():
         self.reserv_station_name = None
         
     def __str__(self):
-        return f"Name: {self.name} | Busy: {self.busy} | Operand: {self.operand} | Operation Clocks: {self.operation_clocks}"
+        return f"Name: {self.name:{6}} | Busy: {self.busy} | Operand: {self.operand} | Operation Clocks: {self.operation_clocks}"
     
     def popule_unit(self, operand: str, operation_clocks: int, reserv_station_name: str):
         self.busy = True
@@ -85,4 +85,4 @@ class Registers():
         self.value = 0
         
     def __str__(self):
-        return f"R{self.number} --> Qi: {self.Qi} | Value: {self.value}"
+        return f"R{self.number:{2}} --> Qi: {self.Qi:{6}} | Value: {self.value:{4}}"
