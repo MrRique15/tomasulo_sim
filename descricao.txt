@@ -1,18 +1,8 @@
-- Não precisa de FLOAT op
-- Memória de dados != Memória de instruções
-	- instrução cabe na memória de instruções, cada posição da memória armazena um único elemento
-- Memória de dados >= 512 posições
-- Programa em exec pode ser armazenado inteiro na mem de instruções
-- 32 regs de uso geral (r0 ... r31)
-	- r0 = 0 (sempre) - usado para fazer instruções do tipo *i* -> movi r3,5 = addi r3,r0,5
-- UNIDADES FUNCIONAIS
-	- 3 unidades para (LOAD & STORE) - calculo de endereço
-	- 3 unidades para (SOMA & SUBTRACAO) - inteiros 
-		- operações lógicas e desvios feitas nas mesmas unidades
-	- 3 unidades para (MULT & DIV) - inteiros
-- ESTAÇÕES DE RESERVA
-	- 16 (SOMA & SUB)
-	- 16 (MULT & DIV)
-	- 16 (LOAD & STORE)
-	
-- INSTRUÇÕES DE ENTRADA NA TABELA DO TRABALHO
+Simulador do Algoritmo de Tomasulo em Python
+
+# Para executar algum programa, insira um arquivo do tipo .txt na pasta data_sets
+# Este arquivo deve conter instruções do tipo -> intrucao reg1,reg2,reg3 (sem espaços entre os registradores, apenas vírgulas)
+# Para executar, insira o caminho do arquivo na variável data_set_path dentro do main.py, e, o caminho de saída do output em out_put_path
+# Após isto, basta executar o main.py via console:
+
+$ python main.py
