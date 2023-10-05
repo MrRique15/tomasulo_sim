@@ -1,4 +1,11 @@
-Simulador do Algoritmo de Tomasulo em Python
+## Simulador do Algoritmo de Tomasulo em Python
+
+################################################
+# Alunos:
+- Henrique Favaro - RA: 115.408
+- Felipe Piassa   - RA: 112.647
+- Joao Gilberto   - RA: 112.684
+################################################
 
 # Para executar algum programa, insira um arquivo do tipo .txt na pasta data_sets
 # Este arquivo deve conter instruções do tipo -> intrucao reg1,reg2,reg3 (sem espaços entre os registradores, apenas vírgulas)
